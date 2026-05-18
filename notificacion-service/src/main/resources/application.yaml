@@ -1,0 +1,26 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: notificacion-service
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: loyoladanner@gmail.com
+    password: ${GOOGLE_API_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+          ssl.checkserveridentity: false
+
+empresa:
+  nombre: Cable Ebenecer Carabamba
+  email: loyoladanner@gmail.com
+  datos-pago: "Yape/Plin: 987 298 465 | Oficina: Tu casa Bebe"
