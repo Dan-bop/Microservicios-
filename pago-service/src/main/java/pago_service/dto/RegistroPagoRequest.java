@@ -1,23 +1,19 @@
 package pago_service.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
 public class RegistroPagoRequest {
 
-    @NotNull
-    private long clienteId;
+    @NotNull(message = "El clienteId es obligatorio")
+    private Long clienteId;
 
-    @NotNull
-    private BigDecimal montoMensual;
-
-    @NotNull
+    @NotEmpty(message = "Debe incluir al menos un mes")
     private List<MesPagoDTO> meses;
 
-    @NotNull
+    @NotNull(message = "El método de pago es obligatorio")
     private String metodoPago;
 }

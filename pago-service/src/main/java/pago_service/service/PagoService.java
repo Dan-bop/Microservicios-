@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pago_service.client.ClienteClient;
+import pago_service.dto.ClienteResponseDTO;
 import pago_service.dto.MesPagoDTO;
 import pago_service.dto.PagoResponseDTO;
 import pago_service.dto.RegistroPagoRequest;
@@ -25,6 +27,7 @@ public class PagoService {
 
     private final PagoRepository pagoRepository;
     private final DetallePagoRepository detallePagoRepository;
+    private final ClienteClient clienteClient;
 
     @Transactional
     public PagoResponseDTO registrarPago(RegistroPagoRequest request, String username) {
@@ -35,6 +38,17 @@ public class PagoService {
 
         if (!Pago.MetodoPago.isValido(request.getMetodoPago())) {
             throw new IllegalArgumentException("Método de pago inválido: " + request.getMetodoPago());
+        }
+
+        // Obtener datos del cliente desde cliente-service via Feign
+        ClienteResponseDTO cliente = clienteClient.obtenerCliente(request.getClienteId());
+
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente no encontrado: " + request.getClienteId());
+        }
+
+        if ("INACTIVO".equals(cliente.getEstado())) {
+            throw new IllegalArgumentException("El cliente está inactivo");
         }
 
         long distintos = request.getMeses().stream()
@@ -59,12 +73,13 @@ public class PagoService {
                 throw new IllegalArgumentException("Periodo ya pagado: " + mes + "-" + mesDto.getAnio());
             }
 
-            total = total.add(request.getMontoMensual());
+            // Usar montoMensual del cliente obtenido desde cliente-service
+            total = total.add(cliente.getMontoMensual());
 
             DetallePago detalle = new DetallePago();
             detalle.setMes(mes);
             detalle.setAnio(mesDto.getAnio());
-            detalle.setMontoMes(request.getMontoMensual());
+            detalle.setMontoMes(cliente.getMontoMensual());
             detalles.add(detalle);
         }
 
@@ -78,11 +93,14 @@ public class PagoService {
         detalles.forEach(d -> d.setPago(guardado));
         detallePagoRepository.saveAll(detalles);
 
+        log.info("Pago registrado: {} - Cliente: {} - Total: S/ {}",
+                guardado.getId(), request.getClienteId(), total);
+
         return toDTO(guardado);
     }
 
     @Transactional
-    public void anular(Long pagoId, String motivo, String username) {
+    public void anular(Long pagoId, String motivo) {
         if (motivo == null || motivo.isBlank()) {
             throw new IllegalArgumentException("El motivo es obligatorio");
         }
@@ -103,6 +121,13 @@ public class PagoService {
     public List<PagoResponseDTO> listarPorCliente(Long clienteId) {
         return pagoRepository.findByClienteId(clienteId)
                 .stream().map(this::toDTO).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PagoResponseDTO buscarPorId(Long id) {
+        return pagoRepository.findById(id)
+                .map(this::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado: " + id));
     }
 
     private PagoResponseDTO toDTO(Pago p) {

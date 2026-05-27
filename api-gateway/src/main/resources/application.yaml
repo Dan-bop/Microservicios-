@@ -29,4 +29,4 @@ spring:
             - Path=/api/notificaciones/**
 
 jwt:
-  secret: ZWJlbmVjZXJjYWJsZXRydWppbGxvc2VjcmV0a2V5MjAyNnNlY3VyZQ==
+  secret: ${JWT_SECRET}

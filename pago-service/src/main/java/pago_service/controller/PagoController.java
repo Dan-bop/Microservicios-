@@ -29,7 +29,7 @@ public class PagoController {
             @PathVariable Long id,
             @RequestParam String motivo,
             @RequestHeader("X-Username") String username) {
-        pagoService.anular(id, motivo, username);
+        pagoService.anular(id, motivo);
         return ResponseEntity.ok("Pago anulado correctamente");
     }
 

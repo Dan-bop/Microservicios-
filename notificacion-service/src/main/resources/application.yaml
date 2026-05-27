@@ -8,19 +8,16 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: loyoladanner@gmail.com
-    password: ${GOOGLE_API_KEY}
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-          ssl:
-            trust: "*"
-          ssl.checkserveridentity: false
 
 empresa:
-  nombre: Cable Ebenecer Carabamba
-  email: loyoladanner@gmail.com
-  datos-pago: "Yape/Plin: 987 298 465 | Oficina: Tu casa Bebe"
+  nombre: Cable Ebenecer Trujillo
+  email: ${MAIL_USER}
+  datos-pago: "Yape/Plin: 987 298 465 | Oficina: Tu Corazon Bebe"
