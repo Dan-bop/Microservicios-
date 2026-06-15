@@ -3,13 +3,12 @@ package pago_service.service;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pago_service.client.ClienteClient;
-import pago_service.dto.ClienteResponseDTO;
-import pago_service.dto.MesPagoDTO;
-import pago_service.dto.PagoResponseDTO;
-import pago_service.dto.RegistroPagoRequest;
+import pago_service.config.RabbitMQConfig;
+import pago_service.dto.*;
 import pago_service.model.DetallePago;
 import pago_service.model.Pago;
 import pago_service.repository.DetallePagoRepository;
@@ -28,6 +27,7 @@ public class PagoService {
     private final PagoRepository pagoRepository;
     private final DetallePagoRepository detallePagoRepository;
     private final ClienteClient clienteClient;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional
     public PagoResponseDTO registrarPago(RegistroPagoRequest request, String username) {
@@ -92,6 +92,25 @@ public class PagoService {
         Pago guardado = pagoRepository.save(pago);
         detalles.forEach(d -> d.setPago(guardado));
         detallePagoRepository.saveAll(detalles);
+
+        List<String> mesesStr = request.getMeses().stream()
+                .map(m -> m.getMes() + " " + m.getAnio())
+                .toList();
+
+        if (cliente.getCorreo() != null && !cliente.getCorreo().isBlank()) {
+            NotificacionRequest notif = new NotificacionRequest();
+            notif.setTipo("RECIBO_PAGO");
+            notif.setCorreoDestino(cliente.getCorreo());
+            notif.setNombreCliente(cliente.getNombre());
+            notif.setMontoTotal(total);
+            notif.setMetodoPago(request.getMetodoPago());
+            notif.setMeses(mesesStr);
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE,
+                    RabbitMQConfig.ROUTING_KEY,
+                    notif
+            );
+        }
 
         log.info("Pago registrado: {} - Cliente: {} - Total: S/ {}",
                 guardado.getId(), request.getClienteId(), total);

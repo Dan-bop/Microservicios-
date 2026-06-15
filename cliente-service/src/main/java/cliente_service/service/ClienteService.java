@@ -1,11 +1,14 @@
 package cliente_service.service;
 
+import cliente_service.config.RabbitMQConfig;
 import cliente_service.dto.ClienteDeudaDTO;
 import cliente_service.dto.ClienteRequestDTO;
 import cliente_service.dto.ClienteResponseDTO;
+import cliente_service.dto.NotificacionRequest;
 import cliente_service.model.Cliente;
 import cliente_service.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.util.List;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     private ClienteResponseDTO toDTO(Cliente c) {
         return new ClienteResponseDTO(
@@ -67,7 +71,24 @@ public class ClienteService {
         cliente.setLongitud(request.getLongitud());
         cliente.setInicioServicio(LocalDate.now());
 
-        return toDTO(clienteRepository.save(cliente));
+        Cliente guardado = clienteRepository.save(cliente);
+
+        // ✅ Publicar mensaje de bienvenida en RabbitMQ
+        if (guardado.getCorreo() != null && !guardado.getCorreo().isBlank()) {
+            NotificacionRequest notif = new NotificacionRequest();
+            notif.setTipo("BIENVENIDA");
+            notif.setCorreoDestino(guardado.getCorreo());
+            notif.setNombreCliente(guardado.getNombre());
+            notif.setMontoMensual(guardado.getMontoMensual());
+            notif.setDiaPago(guardado.getDiaPago());
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE,
+                    RabbitMQConfig.ROUTING_KEY,
+                    notif
+            );
+        }
+
+        return toDTO(guardado);
     }
 
     @Transactional
@@ -91,8 +112,22 @@ public class ClienteService {
     public void desactivar(Long id) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado: " + id));
+
         cliente.setEstado(Cliente.Estado.INACTIVO);
         clienteRepository.save(cliente);
+
+        // ✅ Publicar mensaje de baja en RabbitMQ
+        if (cliente.getCorreo() != null && !cliente.getCorreo().isBlank()) {
+            NotificacionRequest notif = new NotificacionRequest();
+            notif.setTipo("BAJA");
+            notif.setCorreoDestino(cliente.getCorreo());
+            notif.setNombreCliente(cliente.getNombre());
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.EXCHANGE,
+                    RabbitMQConfig.ROUTING_KEY,
+                    notif
+            );
+        }
     }
 
     @Transactional(readOnly = true)
@@ -104,13 +139,12 @@ public class ClienteService {
                 ? cliente.getInicioServicio()
                 : cliente.getFechaRegistro().toLocalDate();
 
-        LocalDate hoy = LocalDate.now();
         List<String> deuda = new ArrayList<>();
         LocalDate iterador = inicio.withDayOfMonth(1);
+        LocalDate hoy = LocalDate.now().withDayOfMonth(1);
 
-        while (!iterador.isAfter(hoy.withDayOfMonth(1))) {
-            String periodo = traducirMes(iterador.getMonthValue()) + " " + iterador.getYear();
-            deuda.add(periodo);
+        while (!iterador.isAfter(hoy)) {
+            deuda.add(traducirMes(iterador.getMonthValue()) + " " + iterador.getYear());
             iterador = iterador.plusMonths(1);
         }
 

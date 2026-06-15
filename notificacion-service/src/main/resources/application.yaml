@@ -17,7 +17,21 @@ spring:
           starttls:
             enable: true
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 empresa:
   nombre: Cable Ebenecer Trujillo
   email: ${MAIL_USER}
   datos-pago: "Yape/Plin: 987 298 465 | Oficina: Tu Corazon Bebe"
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
