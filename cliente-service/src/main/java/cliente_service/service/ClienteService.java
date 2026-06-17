@@ -159,4 +159,13 @@ public class ClienteService {
                 "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
         return meses[mes - 1];
     }
+
+    @Transactional
+    public void eliminar(Long id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new IllegalArgumentException("Cliente no encontrado: " + id);
+        }
+        clienteRepository.deleteById(id);
+    }
+
 }
