@@ -3,6 +3,8 @@ package cliente_service.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class ClienteRequestDTO {
@@ -23,6 +25,9 @@ public class ClienteRequestDTO {
     private BigDecimal montoMensual;
 
     private Integer diaPago;
-    private BigDecimal latitud;
-    private BigDecimal longitud;
+
+    //Lista de meses previos adeudados (Ej: ["Enero 2026", "Febrero 2026"])
+    private List<String> mesesDeuda;
+
+    private LocalDate inicioServicio;
 }

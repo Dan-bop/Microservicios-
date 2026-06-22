@@ -3,6 +3,7 @@ package pago_service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pago_service.dto.PagoResponseDTO;
 import pago_service.dto.RegistroPagoRequest;
@@ -24,14 +25,16 @@ public class PagoController {
         return ResponseEntity.ok(pagoService.registrarPago(request, username));
     }
 
+
     @PutMapping("/anular/{id}")
     public ResponseEntity<String> anular(
             @PathVariable Long id,
             @RequestParam String motivo,
             @RequestHeader("X-Username") String username) {
         pagoService.anular(id, motivo);
-        return ResponseEntity.ok("Pago anulado correctamente");
+        return ResponseEntity.ok("Pago anulado correctamente por " + username);
     }
+
 
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<PagoResponseDTO>> listarPorCliente(

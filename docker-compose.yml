@@ -1,8 +1,4 @@
-version: '3.8'
-
 services:
-
-  # ─── Infraestructura ───────────────────────────────────────
   postgres-auth:
     image: postgres:15-alpine
     container_name: postgres-auth
@@ -56,8 +52,12 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     networks:
       - ebenecer-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # ─── Eureka Server ─────────────────────────────────────────
   eureka-server:
     build: ./eurekaserver
     container_name: eureka-server
@@ -66,17 +66,16 @@ services:
     networks:
       - ebenecer-net
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8761/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
-  # ─── Microservicios ────────────────────────────────────────
   auth-service:
     build: ./auht-service
     container_name: auth-service
-    ports:
-      - "8081:8081"
+    env_file:
+      - .env
     environment:
       DB_AUTH_URL: jdbc:postgresql://postgres-auth:5432/auth_db
       DB_USER: postgres
@@ -84,16 +83,16 @@ services:
       JWT_SECRET: ZWJlbmVjZXJjYWJsZXRydWppbGxvc2VjcmV0a2V5MjAyNnNlY3VyZQ==
       EUREKA_URL: http://eureka-server:8761/eureka/
     depends_on:
-      - postgres-auth
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+      postgres-auth:
+        condition: service_started
     networks:
       - ebenecer-net
 
   cliente-service:
     build: ./cliente-service
     container_name: cliente-service
-    ports:
-      - "8082:8082"
     environment:
       DB_CLIENTE_URL: jdbc:postgresql://postgres-cliente:5432/cliente_db
       DB_USER: postgres
@@ -101,17 +100,18 @@ services:
       EUREKA_URL: http://eureka-server:8761/eureka/
       RABBITMQ_HOST: rabbitmq
     depends_on:
-      - postgres-cliente
-      - eureka-server
-      - rabbitmq
+      eureka-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres-cliente:
+        condition: service_started
     networks:
       - ebenecer-net
 
   pago-service:
     build: ./pago-service
     container_name: pago-service
-    ports:
-      - "8083:8083"
     environment:
       DB_PAGO_URL: jdbc:postgresql://postgres-pago:5432/pago_db
       DB_USER: postgres
@@ -119,25 +119,28 @@ services:
       EUREKA_URL: http://eureka-server:8761/eureka/
       RABBITMQ_HOST: rabbitmq
     depends_on:
-      - postgres-pago
-      - eureka-server
-      - rabbitmq
+      eureka-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      postgres-pago:
+        condition: service_started
     networks:
       - ebenecer-net
 
   notificacion-service:
     build: ./notificacion-service
     container_name: notificacion-service
-    ports:
-      - "8084:8084"
+    env_file:
+      - .env # 👈 AÑADIDO: para cargar MAIL_USER y MAIL_PASSWORD
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka/
       RABBITMQ_HOST: rabbitmq
-      MAIL_USER: ${MAIL_USER}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
     depends_on:
-      - eureka-server
-      - rabbitmq
+      eureka-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - ebenecer-net
 
@@ -150,7 +153,8 @@ services:
       JWT_SECRET: ZWJlbmVjZXJjYWJsZXRydWppbGxvc2VjcmV0a2V5MjAyNnNlY3VyZQ==
       EUREKA_URL: http://eureka-server:8761/eureka/
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
     networks:
       - ebenecer-net
 

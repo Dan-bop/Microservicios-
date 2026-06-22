@@ -3,6 +3,8 @@ package cliente_service.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -15,8 +17,7 @@ public class ClienteResponseDTO {
     private String direccion;
     private BigDecimal montoMensual;
     private Integer diaPago;
-    private BigDecimal latitud;
-    private BigDecimal longitud;
+    private List<String> mesesDeuda;
     private String estado;
+    private LocalDate inicioServicio;
 }
-

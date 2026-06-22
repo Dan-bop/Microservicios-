@@ -51,6 +51,13 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.actualizar(id, request));
     }
 
+    // --- NUEVO ENDPOINT PARA REACTIVAR ---
+    @PutMapping("/{id}/activar")
+    public ResponseEntity<Void> activar(@PathVariable Long id) {
+        clienteService.activar(id);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> desactivar(@PathVariable Long id) {
         clienteService.desactivar(id);
@@ -63,4 +70,19 @@ public class ClienteController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/quitar-deuda")
+    public ResponseEntity<Void> quitarDeuda(
+            @PathVariable Long id,
+            @RequestBody List<String> meses) {
+
+        clienteService.quitarMesesDeuda(id, meses);
+        return ResponseEntity.ok().build();
+    }
+
+    // En ClienteController.java
+    @PutMapping("/{id}/agregar-deuda")
+    public ResponseEntity<Void> agregarDeuda(@PathVariable Long id, @RequestBody List<String> meses) {
+        clienteService.agregarMesesDeuda(id, meses);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -21,24 +21,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final String[] RUTAS_PUBLICAS = {
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/hash"
-    };
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String path = exchange.getRequest().getPath().toString();
+        String path = exchange.getRequest().getPath().value();
 
-        for (String ruta : RUTAS_PUBLICAS) {
-            if (path.startsWith(ruta)) {
-                return chain.filter(exchange);
-            }
+        // ✅ Dejar libre todo lo que esté bajo /api/auth/**
+        if (path.startsWith("/api/auth")) {
+            return chain.filter(exchange);
         }
 
-        String authHeader = exchange.getRequest()
-                .getHeaders().getFirst("Authorization");
+        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -55,13 +47,15 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
             String username = claims.getSubject();
             String rol = claims.get("rol", String.class);
+            String springRol = "ROLE_" + rol;
 
             ServerWebExchange mutated = exchange.mutate()
                     .request(r -> r.headers(h -> {
                         h.set("X-Username", username);
-                        h.set("X-Rol", rol);
+                        h.set("X-Rol", springRol);
                     }))
                     .build();
+            ;
 
             return chain.filter(mutated);
 

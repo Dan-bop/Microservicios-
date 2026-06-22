@@ -13,4 +13,3 @@ public class ClienteDeudaDTO {
     private List<String> mesesDeuda;
     private BigDecimal totalDeuda;
 }
-

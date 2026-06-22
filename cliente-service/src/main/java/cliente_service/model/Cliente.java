@@ -5,6 +5,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "clientes")
@@ -31,17 +33,17 @@ public class Cliente {
     @Column(name = "dia_pago")
     private Integer diaPago = 15;
 
+    // Lista de meses específicos que debe (Ej: ["Enero 2026", "Febrero 2026"])
+    @ElementCollection
+    @CollectionTable(name = "cliente_meses_deuda", joinColumns = @JoinColumn(name = "cliente_id"))
+    @Column(name = "mes")
+    private List<String> mesesDeuda = new ArrayList<>();
+
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro = LocalDateTime.now();
 
     @Column(name = "inicio_servicio")
     private LocalDate inicioServicio;
-
-    @Column(precision = 10, scale = 8)
-    private BigDecimal latitud;
-
-    @Column(precision = 11, scale = 8)
-    private BigDecimal longitud;
 
     @Enumerated(EnumType.STRING)
     private Estado estado = Estado.ACTIVO;

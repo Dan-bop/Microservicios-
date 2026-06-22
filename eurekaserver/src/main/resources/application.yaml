@@ -16,3 +16,11 @@ eureka:
   server:
     enable-self-preservation: false
     renewal-percent-threshold: 0.5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    show-details: always

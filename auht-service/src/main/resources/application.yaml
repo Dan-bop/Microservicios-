@@ -24,6 +24,10 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: 86400000
 
+admin:
+  default:
+    password: ${ADMIN_DEFAULT_PASSWORD}
+
 eureka:
   client:
     service-url:

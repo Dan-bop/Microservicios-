@@ -7,7 +7,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class UsuarioResponseDTO {
+
     private Long id;
     private String username;
+    private String nombreCompleto;
     private Usuario.Rol rol;
 }

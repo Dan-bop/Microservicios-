@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,7 +39,13 @@ public class Pago {
     private String motivoAnulacion;
 
     @OneToMany(mappedBy = "pago", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DetallePago> detalles;
+    private List<DetallePago> detalles = new ArrayList<>();
+
+    // Método agregado para asegurar la relación bidireccional
+    public void addDetalle(DetallePago detalle) {
+        this.detalles.add(detalle);
+        detalle.setPago(this);
+    }
 
     public enum MetodoPago {
         EFECTIVO, YAPE, PLIN;
