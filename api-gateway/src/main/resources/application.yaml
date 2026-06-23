@@ -37,4 +37,4 @@ eureka:
       defaultZone: https://ebenecer-eureka.onrender.com/eureka/
   instance:
     hostname: ebenecer-gateway.onrender.com
-    prefer-ip-address: falsegit
+    prefer-ip-address: false
