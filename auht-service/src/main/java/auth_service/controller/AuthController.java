@@ -24,6 +24,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody AuthRequest request) {
+
+
+        System.out.println("========== ENTRO AL LOGIN ==========");
+        System.out.println("Usuario recibido: " + request.getUsername());
+        var existe = usuarioRepository.findByUsername(request.getUsername());
+
+        System.out.println("Existe usuario en BD: " + existe.isPresent());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
