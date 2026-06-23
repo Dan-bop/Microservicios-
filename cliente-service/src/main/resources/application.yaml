@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: ${PORT:8082}
 
 spring:
   application:
@@ -9,10 +9,14 @@ spring:
     url: ${DB_CLIENTE_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    jpa:
-      properties:
-        hibernate:
-          default_schema: cliente_schema
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_schema: cliente_schema
+    hibernate:
+      ddl-auto: update
 
   cloud:
     openfeign:
@@ -33,6 +37,6 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: https://ebenecer-eureka.onrender.com/eureka/
+      defaultZone: ${EUREKA_URL}
   instance:
     prefer-ip-address: false

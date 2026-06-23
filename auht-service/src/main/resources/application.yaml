@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 spring:
   application:
@@ -9,22 +9,22 @@ spring:
     url: ${DB_AUTH_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    jpa:
-      properties:
-        hibernate:
-          default_schema: auth_schema
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_schema: auth_schema
+    hibernate:
+      ddl-auto: update
 
 jwt:
   secret: ${JWT_SECRET}
   expiration: 86400000
 
-admin:
-  default:
-    password: ${ADMIN_DEFAULT_PASSWORD}
-
 eureka:
   client:
     service-url:
-      defaultZone: https://ebenecer-eureka.onrender.com/eureka/
+      defaultZone: ${EUREKA_URL}
   instance:
     prefer-ip-address: false
