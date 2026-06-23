@@ -32,6 +32,11 @@ jwt:
   secret: ${JWT_SECRET}
 
 eureka:
+  client:
+    service-url:
+      defaultZone: https://ebenecer-eureka.onrender.com/eureka/
+    register-with-eureka: true
+    fetch-registry: true
   instance:
     hostname: ebenecer-gateway.onrender.com
     prefer-ip-address: false
