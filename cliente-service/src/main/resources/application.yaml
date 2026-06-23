@@ -9,16 +9,10 @@ spring:
     url: ${DB_CLIENTE_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+    jpa:
+      properties:
+        hibernate:
+          default_schema: cliente_schema
 
   cloud:
     openfeign:
@@ -29,10 +23,12 @@ spring:
             readTimeout: 5000
 
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+    ssl:
+      enabled: true
 
 eureka:
   client:

@@ -1,7 +1,13 @@
+# Variables de entorno — NUNCA subir al repo
 .env
+
+# Compilados de Maven
+*/target/
+
+# IntelliJ
 .idea/
 *.iml
 
-**/target/
-
-.DS_Store
+# Angular
+ebenecer-web/node_modules/
+ebenecer-web/dist/
