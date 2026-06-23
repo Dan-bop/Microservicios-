@@ -1,11 +1,13 @@
-FROM eclipse-temurin:21-jdk-alpine
-
-RUN apk add --no-cache curl
-
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-COPY target/*.jar app.jar
-
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+RUN apk add --no-cache curl
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8761
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
