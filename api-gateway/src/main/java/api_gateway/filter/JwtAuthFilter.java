@@ -24,9 +24,10 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
+        String method = exchange.getRequest().getMethod().name();
 
-        // ✅ Dejar libre todo lo que esté bajo /api/auth/**
-        if (path.startsWith("/api/auth")) {
+        // Permitir explícitamente OPTIONS para CORS
+        if ("OPTIONS".equals(method) || path.startsWith("/api/auth")) {
             return chain.filter(exchange);
         }
 
