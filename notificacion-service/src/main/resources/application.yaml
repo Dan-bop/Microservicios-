@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: ${PORT:8084}
 
 spring:
   application:
@@ -18,11 +18,11 @@ spring:
             enable: true
 
   rabbitmq:
-    host: ${RABBITMQ_HOST:localhost}
-    port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USER:guest}
-    password: ${RABBITMQ_PASSWORD:guest}
-    virtual-host: ${RABBITMQ_VHOST:/}
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USER}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST}
     ssl:
       enabled: true
 
@@ -34,6 +34,8 @@ empresa:
 eureka:
   client:
     service-url:
-      defaultZone: https://ebenecer-eureka.onrender.com/eureka/
+      defaultZone: ${EUREKA_URL}
+
   instance:
+    hostname: ebenecer-notificacion.onrender.com
     prefer-ip-address: false
