@@ -38,7 +38,7 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL}
-
   instance:
-    hostname: ebenecer-pago.onrender.com
+    hostname: ebenecer-pagos.onrender.com
     prefer-ip-address: false
+    non-secure-port: 80

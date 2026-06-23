@@ -26,6 +26,7 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_URL}
-
   instance:
-    prefer-ip-address: true
+    hostname: ebenecer-auth.onrender.com
+    prefer-ip-address: false
+    non-secure-port: 80
