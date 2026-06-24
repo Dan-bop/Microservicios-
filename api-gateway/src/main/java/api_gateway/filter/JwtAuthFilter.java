@@ -26,14 +26,19 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getPath().value();
         String method = exchange.getRequest().getMethod().name();
 
-        // Permitir explícitamente OPTIONS para CORS
-        if ("OPTIONS".equals(method) || path.startsWith("/api/auth")) {
+        // Log para ver qué ruta entra al filtro
+        System.out.println(">>> JwtAuthFilter ejecutado en ruta: " + path + " con método: " + method);
+
+        // Permitir explícitamente OPTIONS y todas las rutas de /api/auth/**
+        if ("OPTIONS".equals(method) || path.startsWith("/api/auth/")) {
+            System.out.println(">>> Ruta pública permitida sin token: " + path);
             return chain.filter(exchange);
         }
 
         String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println(">>> Falta Authorization header, devolviendo 401");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
@@ -50,17 +55,20 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
             String rol = claims.get("rol", String.class);
             String springRol = "ROLE_" + rol;
 
+            // Log de usuario y rol extraídos
+            System.out.println(">>> Token válido. Usuario: " + username + " Rol: " + springRol);
+
             ServerWebExchange mutated = exchange.mutate()
                     .request(r -> r.headers(h -> {
                         h.set("X-Username", username);
                         h.set("X-Rol", springRol);
                     }))
                     .build();
-            ;
 
             return chain.filter(mutated);
 
         } catch (Exception e) {
+            System.out.println(">>> Error al validar token: " + e.getMessage());
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
