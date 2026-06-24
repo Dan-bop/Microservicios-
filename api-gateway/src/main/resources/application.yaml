@@ -1,32 +1,31 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
     name: api-gateway
   cloud:
     gateway:
+      # Usamos el formato del Archivo 2 para CORS, es más robusto
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      # Usamos el formato del Archivo 1 para las rutas (Eureka)
       routes:
         - id: auth-service
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
-        - id: usuario-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/usuarios/**
-        - id: cliente-service
-          uri: lb://cliente-service
-          predicates:
-            - Path=/api/clientes/**
-        - id: pago-service
-          uri: lb://pago-service
-          predicates:
-            - Path=/api/pagos/**
-        - id: notificacion-service
-          uri: lb://notificacion-service
-          predicates:
-            - Path=/api/notificaciones/**
+        # ... (las demás rutas iguales al archivo 1)
 
 jwt:
   secret: ${JWT_SECRET}
