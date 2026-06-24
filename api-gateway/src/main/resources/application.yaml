@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
       globalcors:
@@ -19,44 +18,36 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
-      httpclient:
-        ssl:
-          useInsecureTrustManager: true
       routes:
         - id: auth-service
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
-          filters:
-            - PreserveHostHeader
 
         - id: usuario-service
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          uri: lb://auth-service
           predicates:
             - Path=/api/usuarios/**
-          filters:
-            - PreserveHostHeader
 
         - id: cliente-service
-          uri: ${CLIENT_SERVICE_URL:http://localhost:8082}
+          uri: lb://cliente-service
           predicates:
             - Path=/api/clientes/**
-          filters:
-            - PreserveHostHeader
 
         - id: pago-service
-          uri: ${PAGO_SERVICE_URL:http://localhost:8083}
+          uri: lb://pago-service
           predicates:
             - Path=/api/pagos/**
-          filters:
-            - PreserveHostHeader
 
         - id: notificacion-service
-          uri: ${NOTIFICACION_SERVICE_URL:http://localhost:8084}
+          uri: lb://notificacion-service
           predicates:
             - Path=/api/notificaciones/**
-          filters:
-            - PreserveHostHeader
 
 jwt:
   secret: ${JWT_SECRET}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: https://ebenecer-eureka.onrender.com/eureka/
