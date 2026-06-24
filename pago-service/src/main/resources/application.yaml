@@ -22,6 +22,10 @@ spring:
     openfeign:
       client:
         config:
+          cliente-service:
+            url: https://ebenecer-clientes.onrender.com # Usa la URL real
+            connectTimeout: 10000 # 10 segundos
+            readTimeout: 30000    # 30 segundos (vital para el cold start de Render)
           default:
             connectTimeout: 5000
             readTimeout: 5000
