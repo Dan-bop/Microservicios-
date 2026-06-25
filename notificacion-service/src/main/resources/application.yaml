@@ -6,18 +6,16 @@ spring:
     name: notificacion-service
 
   mail:
-    host: smtp.resend.com
-    port: 465
-    username: resend
-    password: ${RESEND_API_KEY}
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
-          ssl:
-            enable: true
           starttls:
-            enable: false
+            enable: true
 
   rabbitmq:
     host: ${RABBITMQ_HOST}
@@ -30,7 +28,7 @@ spring:
 
 empresa:
   nombre: Cable Ebenecer Trujillo
-  email: onboarding@resend.dev   # ← temporal hasta verificar dominio
+  email: ${MAIL_USER}
   datos-pago: "Yape/Plin: 987 298 465 | Oficina: Trujillo"
 
 eureka:
