@@ -154,28 +154,30 @@ public class PagoServiceImpl implements PagoService {
         }
     }
     // Anular un pago existente
+
     @Override
     @Transactional
     public void anular(Long pagoId, String motivo) {
-        if(motivo == null || motivo.isBlank()) {
-            throw new IllegalArgumentException(
-                    "El motivo es obligatorio"
-            );
-        }
-        Pago pago =
-                pagoRepository.findById(pagoId)
-                        .orElseThrow(
-                                () -> new IllegalArgumentException(
-                                        "Pago no encontrado"
-                                ));
+        // 1. Validaciones
+        Pago pago = pagoRepository.findById(pagoId)
+                .orElseThrow(() -> new IllegalArgumentException("Pago no encontrado"));
+
         if(Boolean.TRUE.equals(pago.getEsAnulado())) {
-            throw new IllegalArgumentException(
-                    "El pago ya fue anulado"
-            );
+            throw new IllegalArgumentException("El pago ya fue anulado");
         }
+
+        // 2. Marcar como anulado
         pago.setEsAnulado(true);
         pago.setMotivoAnulacion(motivo);
         pagoRepository.save(pago);
+
+
+        // Debes obtener los meses de los detalles del pago
+        List<String> mesesAActualizar = pago.getDetalles().stream()
+                .map(d -> d.getMes() + " " + d.getAnio())
+                .toList();
+
+        clienteClient.agregarDeuda(pago.getClienteId(), mesesAActualizar);
     }
 
 
