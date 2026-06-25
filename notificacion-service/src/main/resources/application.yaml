@@ -5,20 +5,6 @@ spring:
   application:
     name: notificacion-service
 
-  mail:
-    host: smtp.resend.com
-    port: 465
-    username: resend
-    password: ${RESEND_API_KEY}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          ssl:
-            enable: true
-          starttls:
-            enable: false
-
   rabbitmq:
     host: ${RABBITMQ_HOST}
     port: ${RABBITMQ_PORT}

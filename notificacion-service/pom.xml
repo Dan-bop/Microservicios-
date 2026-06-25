@@ -22,12 +22,6 @@
 	</properties>
 
 	<dependencies>
-		<!-- Envío de correos -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
-		</dependency>
-
 		<!-- Validación Jakarta -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -60,13 +54,14 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
-		<!-- RabbitMQ -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-amqp</artifactId>
+			<groupId>com.resend</groupId>
+			<artifactId>resend-java</artifactId>
+			<version>3.1.0</version>
 		</dependency>
-	</dependencies>
 
+		<!-- RabbitMQ -->
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
